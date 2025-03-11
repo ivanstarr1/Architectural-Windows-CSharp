@@ -1,0 +1,116 @@
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\ArchitecturalWindows.deps.json
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\ArchitecturalWindows.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\ArchitecturalWindows.pdb
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\accoremgd.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\acdbmgd.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\acmgd.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AdUiPalettes.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AcDx.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AcDxPublishUi.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AdWindows.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AcCui.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AcCustomize.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AppHomeInterop.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AcMr.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AcJsonSerializable.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AcWindows.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AdUIMgd.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AcTcMgd.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\ClosedXML.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\System.Data.OleDb.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\Ac32BitAppServer.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\AcMNUParser.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\Autodesk.AutoCAD.Interop.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\Autodesk.DesktopConnector.API.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\Serilog.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\Newtonsoft.Json.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\Serilog.Sinks.File.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\Autodesk.AutoCAD.Interop.Common.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\System.Management.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\Microsoft.CodeAnalysis.CSharp.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\Microsoft.CodeAnalysis.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\DasClient.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\DocumentFormat.OpenXml.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\SixLabors.Fonts.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\System.ServiceModel.Primitives.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\System.ServiceModel.NetNamedPipe.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\System.ServiceModel.NetFramingBase.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\en-US\acdbmgd.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\en-US\AcDx.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\en-US\AcDxPublishUi.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\en-US\AdWindows.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\en-US\AcCustomize.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\en-US\AppHomeInterop.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\en-US\AcMr.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\bin\Debug\net8.0-windows\en-US\AcWindows.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\ArchitecturalWindows.csproj.AssemblyReference.cache
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\ArchitecturalWindows.TestForm.resources
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\ArchitecturalWindows.csproj.GenerateResource.cache
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\ArchitecturalWindows.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\ArchitecturalWindows.AssemblyInfoInputs.cache
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\ArchitecturalWindows.AssemblyInfo.cs
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\ArchitecturalWindows.csproj.CoreCompileInputs.cache
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\ArchitecturalWindows.sourcelink.json
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\Architec.105C173B.Up2Date
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\ArchitecturalWindows.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\refint\ArchitecturalWindows.dll
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\ArchitecturalWindows.pdb
+C:\Users\ivans\source\repos\Architectural Windows\MyFirstProject\obj\Debug\net8.0-windows\ref\ArchitecturalWindows.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\ArchitecturalWindows.deps.json
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\ArchitecturalWindows.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\ArchitecturalWindows.pdb
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\accoremgd.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\acdbmgd.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\acmgd.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AdUiPalettes.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AcDx.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AcDxPublishUi.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AdWindows.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AcCui.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AcCustomize.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AppHomeInterop.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AcMr.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AcJsonSerializable.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AcWindows.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AdUIMgd.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AcTcMgd.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\ClosedXML.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\System.Data.OleDb.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\Ac32BitAppServer.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\AcMNUParser.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\Autodesk.AutoCAD.Interop.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\Autodesk.DesktopConnector.API.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\Serilog.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\Newtonsoft.Json.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\Serilog.Sinks.File.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\Autodesk.AutoCAD.Interop.Common.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\System.Management.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\Microsoft.CodeAnalysis.CSharp.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\Microsoft.CodeAnalysis.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\DasClient.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\DocumentFormat.OpenXml.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\SixLabors.Fonts.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\System.ServiceModel.Primitives.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\System.ServiceModel.NetNamedPipe.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\System.ServiceModel.NetFramingBase.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\en-US\acdbmgd.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\en-US\AcDx.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\en-US\AcDxPublishUi.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\en-US\AdWindows.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\en-US\AcCustomize.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\en-US\AppHomeInterop.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\en-US\AcMr.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\bin\Debug\net8.0-windows\en-US\AcWindows.resources.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\ArchitecturalWindows.csproj.AssemblyReference.cache
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\ArchitecturalWindows.TestForm.resources
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\ArchitecturalWindows.csproj.GenerateResource.cache
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\ArchitecturalWindows.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\ArchitecturalWindows.AssemblyInfoInputs.cache
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\ArchitecturalWindows.AssemblyInfo.cs
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\ArchitecturalWindows.csproj.CoreCompileInputs.cache
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\ArchitecturalWindows.sourcelink.json
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\Architec.105C173B.Up2Date
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\ArchitecturalWindows.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\refint\ArchitecturalWindows.dll
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\ArchitecturalWindows.pdb
+C:\Users\ivans\source\repos\Architectural Windows\Architectural Windows\obj\Debug\net8.0-windows\ref\ArchitecturalWindows.dll

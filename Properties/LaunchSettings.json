@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "AutoCAD Debugging": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files\\Autodesk\\AutoCAD 2025\\acad.exe",
+      "commandLineArgs": "\"C:\\Users\\ivans\\OneDrive\\Documents\\GitHub\\Architectural Windows\\Project 1-3.dwg\"",
+      "workingDirectory": "C:\\Users\\ivans\\source\\repos\\Architectural Windows\\Architectural Windows"
+    }
+  }
+}
