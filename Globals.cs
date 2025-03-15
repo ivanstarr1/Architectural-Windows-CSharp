@@ -44,16 +44,9 @@ namespace ArchitecturalWindows
         public static void SetXRecordReal(Transaction tr, DBDictionary dict, string key, double Value)
         {
             SetXRecord(tr, dict, key, new ResultBuffer(new TypedValue((int)DxfCode.ExtendedDataReal, Value)));
-             //Xrecord Xrec = new Xrecord();
-            //Xrec.Data = new ResultBuffer(new TypedValue((int)DxfCode.ExtendedDataReal, Value));
-            //dict.SetAt(key, Xrec);
-            //tr.AddNewlyCreatedDBObject(Xrec, true
-            //tr.Commit();
         }
-        //public static void SetXRecordReal(Transaction tr, DBDictionary dict, string key, String Value)
-        //{
-        //    SetXRecord(tr, dict, key, new ResultBuffer(new TypedValue((int)DxfCode.ExtendedDataReal, Value)));
-        //}
+
+ 
         public static void SetXRecordText(Transaction tr, DBDictionary dict, string key, String Value)
         {
             SetXRecord(tr, dict, key, new ResultBuffer(new TypedValue((int)DxfCode.Text, Value)));
@@ -62,6 +55,7 @@ namespace ArchitecturalWindows
         {
             SetXRecord(tr, dict, key, new ResultBuffer(new TypedValue((int)DxfCode.ExtendedDataInteger32, Value)));
         }
+
 
         public static void SetXRecordHandle(Transaction tr, DBDictionary dict, string key, Handle Value)
         {
