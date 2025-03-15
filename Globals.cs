@@ -46,11 +46,12 @@ namespace ArchitecturalWindows
             SetXRecord(tr, dict, key, new ResultBuffer(new TypedValue((int)DxfCode.ExtendedDataReal, Value)));
         }
 
- 
+
         public static void SetXRecordText(Transaction tr, DBDictionary dict, string key, String Value)
         {
             SetXRecord(tr, dict, key, new ResultBuffer(new TypedValue((int)DxfCode.Text, Value)));
         }
+
         public static void SetXRecordInt(Transaction tr, DBDictionary dict, string key, int Value)
         {
             SetXRecord(tr, dict, key, new ResultBuffer(new TypedValue((int)DxfCode.ExtendedDataInteger32, Value)));
