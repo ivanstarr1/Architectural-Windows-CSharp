@@ -57,6 +57,7 @@ namespace ArchitecturalWindows
         }
 
 
+
         public static void SetXRecordHandle(Transaction tr, DBDictionary dict, string key, Handle Value)
         {
             SetXRecord(tr, dict, key, new ResultBuffer(new TypedValue((int)DxfCode.ExtendedDataHandle, Value)));
