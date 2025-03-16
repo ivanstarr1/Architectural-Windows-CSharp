@@ -5,20 +5,61 @@ using System.Text;
 using System.Threading.Tasks;
 using Autodesk.AutoCAD.ApplicationServices.Core;
 using Autodesk.AutoCAD.DatabaseServices;
-using static Autodesk.AutoCAD.ApplicationServices.Core.Application;
+//using static Autodesk.AutoCAD.ApplicationServices.Core.Application;
 using Autodesk.AutoCAD.Geometry;
+using Autodesk.AutoCAD.EditorInput;
 namespace ArchitecturalWindows
 {
     public static class Globals
     {
+        public static ObjectId? SpatialConflictSolid(ObjectId solid1Id, ObjectId solid2Id)
+        {
+            Database db = HostApplicationServices.WorkingDatabase;
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                Solid3d solid1 = tr.GetObject(solid1Id, OpenMode.ForRead) as Solid3d;
+                Solid3d solid2 = tr.GetObject(solid2Id, OpenMode.ForRead) as Solid3d;
+
+                if (solid1 == null || solid2 == null)
+                    return null;
+
+                Solid3d solid1Copy = new Solid3d();
+                solid1Copy.SetDatabaseDefaults();
+                solid1Copy.CopyFrom(solid1);
+
+                Solid3d solid2Copy = new Solid3d();
+                solid2Copy.SetDatabaseDefaults();
+                solid2Copy.CopyFrom(solid2);
+
+                // Perform the intersection operation
+                try
+                {
+                    solid1Copy.BooleanOperation(BooleanOperationType.BoolIntersect, solid2Copy);
+
+                    // Check if the resulting solid has volume
+                    if (solid1Copy.MassProperties.Volume > 0)
+                    {
+                        BlockTableRecord btr = tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite) as BlockTableRecord;
+                        ObjectId solidId = btr.AppendEntity(solid1Copy);
+                        tr.AddNewlyCreatedDBObject(solid1Copy, true);
+                        tr.Commit();
+                        return solidId;
+                    }
+                }
+                catch
+                {
+                    // Boolean operation failed, meaning no intersection
+                }
+
+                tr.Commit();
+            }
+
+            return ObjectId.Null;
+        }
+
         public static Point3d[] Get3DPolylinePoints(Polyline polyline)
         {
-            //Point3d[] pointsArray = new Point3d[];
-            //Database db = HostApplicationServices.WorkingDatabase;
-            //Transaction tr = db.TransactionManager.StartTransaction()
-            //Polyline polyline = trans.GetObject(result.ObjectId, OpenMode.ForRead) as Polyline;
-            // Create a list to store points
-            List<Point3d> points = new List<Point3d>();
+             List<Point3d> points = new List<Point3d>();
 
             // Get all the vertices of the polyline
             for (int i = 0; i < polyline.NumberOfVertices; i++)
@@ -39,13 +80,11 @@ namespace ArchitecturalWindows
             Xrec.Data = ResBuf;
             dict.SetAt(key, Xrec);
             tr.AddNewlyCreatedDBObject(Xrec, true);
-            //tr.Commit();
         }
         public static void SetXRecordReal(Transaction tr, DBDictionary dict, string key, double Value)
         {
             SetXRecord(tr, dict, key, new ResultBuffer(new TypedValue((int)DxfCode.ExtendedDataReal, Value)));
         }
-
 
         public static void SetXRecordText(Transaction tr, DBDictionary dict, string key, String Value)
         {
@@ -56,8 +95,6 @@ namespace ArchitecturalWindows
         {
             SetXRecord(tr, dict, key, new ResultBuffer(new TypedValue((int)DxfCode.ExtendedDataInteger32, Value)));
         }
-
-
 
         public static void SetXRecordHandle(Transaction tr, DBDictionary dict, string key, Handle Value)
         {
@@ -147,7 +184,6 @@ namespace ArchitecturalWindows
         }
 
 
-
         public static Vector3d GetXRecordVector3d(Transaction tr, DBDictionary dict, string key)
         {
             ResultBuffer ResBuf = GetXRecord(tr, dict, key);
@@ -168,7 +204,25 @@ namespace ArchitecturalWindows
                     origin, xAxis.GetNormal(), yAxis.GetNormal(), zAxis.GetNormal());
         }
 
+        public static ObjectId GetLastCreatedModelSpaceEntity()
+        {
+            Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
 
+            ObjectId lastEntityId = ObjectId.Null;
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                BlockTable bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+                BlockTableRecord btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+
+                foreach (ObjectId id in btr)
+                {
+                    lastEntityId = id; // Keep overwriting until the last one
+                }
+
+                tr.Commit();
+            }
+            return lastEntityId;
+        }
 
         //public static Handle GetXRecordHandle(Transaction tr, DBDictionary dict, string key)
         //{

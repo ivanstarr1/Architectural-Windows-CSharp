@@ -18,7 +18,7 @@ namespace ArchitecturalWindows
         public double YLength;
         public Vector3d XAxis;
         public Vector3d YAxis;
-        public int Handedness;
+        //public int Handedness;
         public Handle FrameEntHandle;
         public Handle GlassEntHandle;
         public double WallThickness;
@@ -61,11 +61,27 @@ namespace ArchitecturalWindows
             WallThickness = GetXRecordReal(tr, dict, "WallThickness");
             XAxis = GetXRecordVector3d(tr, dict, "XAxis");
             YAxis = GetXRecordVector3d(tr, dict, "YAxis");
-            Handedness = GetXRecordInt(tr, dict, "Handedness");
+            //Handedness = GetXRecordInt(tr, dict, "Handedness");
             FrameEntHandle = GetXRecordHandle(tr, dict, "FrameEntHandle");
             GlassEntHandle = GetXRecordHandle(tr, dict, "GlassEntHandle");
             WallEntHandle = GetXRecordHandle(tr, dict, "WallEntHandle");
         }
+
+        public WindowObject(PLineRectInfo PI, Handle wallEntHandle, double wallThickness)
+        {
+            Id = "";
+            Origin = PI.Origin;
+            XLength = PI.XLength;
+            YLength = PI.YLength;
+            WallThickness = wallThickness;
+            XAxis = PI.XAxis;
+            YAxis = PI.YAxis;
+            //Handedness = GetXRecordInt(tr, dict, "Handedness");
+            //FrameEntHandle = GetXRecordHandle(tr, dict, "FrameEntHandle");
+            //GlassEntHandle = GetXRecordHandle(tr, dict, "GlassEntHandle");
+            WallEntHandle = wallEntHandle;
+        }
+
 
         public Point3d[] GetWindowPoints()
         {
@@ -88,7 +104,7 @@ namespace ArchitecturalWindows
                 SetXRecordReal(tr, dict, "YLength", YLength);
                 SetXRecordVector3d(tr, dict, "XAxis", XAxis);
                 SetXRecordVector3d(tr, dict, "YAxis", YAxis);
-                SetXRecordInt(tr, dict, "Handedness", Handedness);
+                //SetXRecordInt(tr, dict, "Handedness", Handedness);
                 SetXRecordHandle(tr, dict, "FrameEntHandle", FrameEntHandle);
                 SetXRecordHandle(tr, dict, "GlassEntHandle", GlassEntHandle);
                 SetXRecordHandle(tr, dict, "WallEntHandle", WallEntHandle);

@@ -10,7 +10,7 @@ using Autodesk.AutoCAD.EditorInput;
 using Autodesk.AutoCAD.Geometry;
 
 using static ArchitecturalWindows.Globals;
-using static ArchitecturalWindows.UCSCommands;
+// using static ArchitecturalWindows.UCSCommands;
 
 using System.Windows.Input;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
@@ -37,10 +37,23 @@ namespace ArchitecturalWindows
         //private static ObjectId previousUCS = ObjectId.Null;
         private static ObjectId PlineTestEntityObjectId = ObjectId.Null;
 
-        [CommandMethod("SetNewUCS")]
-        public void SetNewUCS()
+
+        [CommandMethod("MyRectangle")]
+        public void CreateCustomRectangle()
         {
-            UCSCommands.SetNewUCS();
+            RectangleJig.CreateRectangle();
+        }
+
+
+        [CommandMethod("MyRectangle2")]
+        public void RunRectangleCommand()
+        {
+            Document doc = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument;
+            Editor ed = doc.Editor;
+
+            // Call the built-in RECTANGLE command
+            ed.Document.SendStringToExecute("_RECTANGLE ", true, false, false);
+            ed.WriteMessage("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXxxxxxxxxxxxxxxx");
         }
 
         [CommandMethod("TestXXX")]
@@ -86,6 +99,29 @@ namespace ArchitecturalWindows
         }
 
 
+        [CommandMethod("SpatialConflict")]
+        public static void SpatialConflict()
+        {
+            Document doc = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Editor ed = doc.Editor;
+
+            PromptEntityOptions peo1 = new PromptEntityOptions("\nSelect 3DSolid 1:");
+            PromptEntityOptions peo2 = new PromptEntityOptions("\nSelect 3DSolid 2:");
+            peo1.SetRejectMessage("\nInvalid selection. Select a 3DSolid entity");
+            peo1.AddAllowedClass(typeof(Solid3d), true);
+            peo2.SetRejectMessage("\nInvalid selection. Select a 3DSolid entity");
+            peo2.AddAllowedClass(typeof(Solid3d), true);
+            PromptEntityResult per1 = ed.GetEntity(peo1);
+            if (per1.Status != PromptStatus.OK) return;
+            PromptEntityResult per2 = ed.GetEntity(peo2);
+            if (per2.Status != PromptStatus.OK) return;
+
+            ObjectId? SPConf = SpatialConflictSolid(per1.ObjectId, per2.ObjectId);
+
+        }
+
+
         [CommandMethod("TestZ")]
         public void TestZ()
         {
@@ -96,7 +132,7 @@ namespace ArchitecturalWindows
             Database db = doc.Database;
             Polyline TestPline;
             using (Transaction tr = db.TransactionManager.StartTransaction())
-            { 
+            {
                 TestPline = tr.GetObject(PlineTestEntityObjectId, OpenMode.ForRead) as Polyline;
             }
             CreateNewWindowFromRectInWall(TestPline);
@@ -148,7 +184,6 @@ namespace ArchitecturalWindows
             }
         }
 
-
         public static void ToggleSnapsOff()
         {
             // Save current OSMODE value
@@ -156,6 +191,7 @@ namespace ArchitecturalWindows
             // Set OSMODE to 0 (turn off object snaps)
             Autodesk.AutoCAD.ApplicationServices.Core.Application.SetSystemVariable("OSMODE", 0);
         }
+
 
         public static void ToggleSnapsOn()
         {
@@ -194,15 +230,6 @@ namespace ArchitecturalWindows
         }
 
 
-        //private void AddWindow(Editor ed)
-        //{
-        //    PromptPointOptions ppo = new PromptPointOptions("\nSpecify window insertion point: ");
-        //    PromptPointResult ppr = ed.GetPoint(ppo);
-        //    if (ppr.Status == PromptStatus.OK)
-        //        ed.WriteMessage($"\nWindow added at {ppr.Value}");
-        //    else
-        //        ed.WriteMessage("\nInsertion canceled.");
-        //}
 
         public void AddWindow()
         {
@@ -231,7 +258,7 @@ namespace ArchitecturalWindows
                     using (Transaction tr = db.TransactionManager.StartTransaction())
                     {
                         Polyline plRect = tr.GetObject(per.ObjectId, OpenMode.ForRead) as Polyline;
-                        PlineTestEntityObjectId =plRect.ObjectId;
+                        PlineTestEntityObjectId = plRect.ObjectId;
 
                         if (plRect != null)
                         {
@@ -270,25 +297,35 @@ namespace ArchitecturalWindows
                 {
                     BlockTable bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
                     BlockTableRecord btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+                    tr.Commit();
+                }
 
-                    Polyline pl = new Polyline();
-                    pl.AddVertexAt(0, new Point2d(ppr.Value.X, ppr.Value.Y), 0, 0, 0);
-                    pl.AddVertexAt(1, new Point2d(ppr.Value.X + 10, ppr.Value.Y), 0, 0, 0); // Example second point, adjust accordingly
-                    pl.AddVertexAt(2, new Point2d(ppr.Value.X + 10, ppr.Value.Y + 5), 0, 0, 0);
-                    pl.AddVertexAt(3, new Point2d(ppr.Value.X, ppr.Value.Y + 5), 0, 0, 0);
-                    pl.Closed = true;
+                ed.Document.SendStringToExecute("_RECTANGLE PAUSE PAUSE ", true, false, false);
 
-                    ObjectId plId = btr.AppendEntity(pl);
-                    tr.AddNewlyCreatedDBObject(pl, true);
+                ObjectId lastEntityId = GetLastCreatedModelSpaceEntity();
+                Polyline lastEntity;
+                using (Transaction tr = db.TransactionManager.StartTransaction())
+                {
+                    lastEntity = tr.GetObject(lastEntityId, OpenMode.ForRead) as Polyline;
+                    tr.Commit();
+                }
 
-                    CreateNewWindowFromRectInWall(pl);
-                    pl.Erase();
+                CreateNewWindowFromRectInWall(lastEntity);
+
+                using (Transaction tr = db.TransactionManager.StartTransaction())
+                {
+                    lastEntity.Erase();
 
                     tr.Commit();
                 }
-            }
-        }
+               
+                
 
+            }
+
+        }
+        
+    
 
         private void ModifyWindow(Editor ed)
         {
@@ -326,70 +363,6 @@ namespace ArchitecturalWindows
             }
             return childValue;
         }
-
-        //public static List<ObjectId>? GetEntitiesFromMarker(ObjectId markerId, string entityType)
-        //{
-        //    List<ObjectId> entityList = new List<ObjectId>();
-
-        //    Document doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
-        //    Database db = doc.Database;
-        //    Editor ed = doc.Editor;
-
-        //    using (Transaction tr = db.TransactionManager.StartTransaction())
-        //    {
-        //        // Ensure marker entity exists
-        //        if (!markerId.IsValid || markerId.IsErased)
-        //        {
-        //            ed.WriteMessage("\nMarker entity is invalid or erased.");
-        //            return null;
-        //        }
-
-        //        // Open the marker entity
-        //        Entity markerEntity = tr.GetObject(markerId, OpenMode.ForRead) as Entity;
-        //        if (markerEntity == null) return null;
-
-        //        // Get the next entity in the drawing space
-        //        ObjectId nextId = GetNextEntity(markerId, tr, db);
-
-        //        while (nextId != ObjectId.Null)
-        //        {
-        //            Entity ent = tr.GetObject(nextId, OpenMode.ForRead) as Entity;
-        //            if (ent == null) break;
-
-        //            // If it's a block reference with attributes, process them
-        //            if (ent is BlockReference blkRef && blkRef.AttributeCollection.Count > 0)
-        //            {
-        //                entityList.Add(nextId);
-        //                nextId = SkipAttributes(blkRef, tr, db);
-        //            }
-        //            else
-        //            {
-        //                entityList.Add(nextId);
-        //            }
-
-        //            // Move to the next entity
-        //            nextId = GetNextEntity(nextId, tr, db);
-        //        }
-
-        //        // Filter entities by type if specified
-        //        if (!string.IsNullOrEmpty(entityType))
-        //        {
-        //            entityList = entityList.Where(id =>
-        //            {
-        //                Entity ent = tr.GetObject(id, OpenMode.ForRead) as Entity;
-        //                return ent != null && ent.GetType().Name == entityType;
-        //            }).ToList();
-        //        }
-
-        //        // Delete the marker
-        //        markerEntity.UpgradeOpen();
-        //        markerEntity.Erase();
-
-        //        tr.Commit();
-        //    }
-
-        //    return entityList.Count > 0 ? entityList : null;
-        //}
 
 
         private static ObjectId GetNextEntity(ObjectId currentId, Transaction tr, Database db)
@@ -436,50 +409,6 @@ namespace ArchitecturalWindows
             return markerId;
         }
 
-        public static ObjectId? SpatialConflictSolid(ObjectId solid1Id, ObjectId solid2Id)
-        {
-            Database db = HostApplicationServices.WorkingDatabase;
-            using (Transaction tr = db.TransactionManager.StartTransaction())
-            {
-                Solid3d solid1 = tr.GetObject(solid1Id, OpenMode.ForRead) as Solid3d;
-                Solid3d solid2 = tr.GetObject(solid2Id, OpenMode.ForRead) as Solid3d;
-
-                if (solid1 == null || solid2 == null)
-                    return null;
-
-                Solid3d solid1Copy = new Solid3d();
-                solid1Copy.SetDatabaseDefaults();
-                solid1Copy.CopyFrom(solid1);
-
-                Solid3d solid2Copy = new Solid3d();
-                solid2Copy.SetDatabaseDefaults();
-                solid2Copy.CopyFrom(solid2);
-
-                // Perform the intersection operation
-                try
-                {
-                    solid1Copy.BooleanOperation(BooleanOperationType.BoolIntersect, solid2Copy);
-
-                    // Check if the resulting solid has volume
-                    if (solid1Copy.MassProperties.Volume > 0)
-                    {
-                        BlockTableRecord btr = tr.GetObject(db.CurrentSpaceId, OpenMode.ForWrite) as BlockTableRecord;
-                        ObjectId solidId = btr.AppendEntity(solid1Copy);
-                        tr.AddNewlyCreatedDBObject(solid1Copy, true);
-                        tr.Commit();
-                        return solidId;
-                    }
-                }
-                catch
-                {
-                    // Boolean operation failed, meaning no intersection
-                }
-
-                tr.Commit();
-            }
-
-            return ObjectId.Null;
-        }
 
         public static string UniqueID()
         {
@@ -637,15 +566,13 @@ namespace ArchitecturalWindows
 
 
      
-        public SelectionSet GetAllWalls()
+        public static SelectionSet GetAllWalls()
         {
             Document doc = Autodesk.AutoCAD.ApplicationServices.Application.DocumentManager.MdiActiveDocument;
             Editor ed = doc.Editor;
 
-            // Define the layer to filter by
-            string wallLayer = "walls";
             // Create a selection filter to select all entities on the specified layer
-            TypedValue[] filterValues = { new TypedValue((int)DxfCode.LayerName, wallLayer) };
+            TypedValue[] filterValues = { new TypedValue((int)DxfCode.LayerName, WALLLAYER) };
             SelectionFilter filter = new SelectionFilter(filterValues);
             // Prompt user to select objects, but use the filter for walls
             PromptSelectionResult result = ed.SelectAll(filter);
@@ -672,6 +599,19 @@ namespace ArchitecturalWindows
                 plRectInfo.Origin, plRectInfo.XAxis, plRectInfo.YAxis, plRectInfo.XAxis.CrossProduct(plRectInfo.YAxis)));
             return box;
         }
+
+
+
+        static Solid3d CreateBox(Point3d Origin, Vector3d XAxis, Vector3d YAxis, double X, Double Y, double Z)
+        {
+            Solid3d box = new Solid3d();
+            box.CreateBox(Math.Abs(X), Math.Abs(Y), Math.Abs(Z));
+            box.TransformBy(Matrix3d.Displacement(new Vector3d(X / 2, Y / 2, Z / 2)));
+            box.TransformBy(Matrix3d.AlignCoordinateSystem(Point3d.Origin, Vector3d.XAxis, Vector3d.YAxis, Vector3d.ZAxis,
+                Origin, XAxis, YAxis, XAxis.CrossProduct(YAxis)));
+            return box;
+        }
+
 
 
         static Solid3d CreateBoxAtCoordinateSystem(double X, Double Y, Double Z, Point3d Origin, Vector3d XAxis, Vector3d YAxis)
@@ -721,85 +661,68 @@ namespace ArchitecturalWindows
         }
 
 
-        public void CreateNewWindowFromRectInWall(Polyline plRect)
+        public static void CreateNewWindowFromRectInWall(Polyline plRect)
         {
             Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
-            Transaction tr1 = db.TransactionManager.StartTransaction();
 
-            BlockTable acBlkTbl = tr1.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
-            BlockTableRecord acBlkTblRec = tr1.GetObject(acBlkTbl[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
-
-            Solid3d WindowHole = new Solid3d();
-
-            DBDictionary newWindowDict = new DBDictionary();
-            bool bFoundWall = false;
-            //int ctr = 0;
-
-            SelectionSet allWalls = GetAllWalls();
-            PLineRectInfo plRectInfo = new PLineRectInfo(plRect);
-            Solid3d ThisWindowsWall = new Solid3d();
             Handle ThisWindowsWallEntityHandle = new Handle();
-            tr1.Commit();
+            ObjectId ThisWindowsWallObjectId = new ObjectId();
+            DBDictionary newWindowDict = new DBDictionary();
+            Solid3d ThisWindowsWall = new Solid3d();
+            bool bFoundWall = false;
+            Solid3d WindowHole;
+            ObjectId WindowHoleObjectId = new ObjectId();
+            int Handedness = 0;
+            WindowHole = new Solid3d();
+            SelectionSet allWalls = GetAllWalls();
+            ThisWindowsWall = new Solid3d();
             Solid3d windowBoxPos;
             Solid3d windowBoxNeg;
-            Solid3d CurrWall;
-            Solid3d CurrWallClone1;
-            Solid3d CurrWallClone2;
-            foreach (SelectedObject CurrWallId in allWalls)
+            ObjectId? windowBoxIntersectPosId;
+            ObjectId? windowBoxIntersectNegId;
+            PLineRectInfo PI = new PLineRectInfo(plRect);
+            foreach (SelectedObject AllWallsSelectedObject in allWalls)
             {
                 using (Transaction tr = db.TransactionManager.StartTransaction())
                 {
-                    BlockTable acBlkTbl2 = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
-                    BlockTableRecord acBlkTblRec2 = tr.GetObject(acBlkTbl2[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+                    BlockTable acBlkTbl = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+                    BlockTableRecord acBlkTblRec = tr.GetObject(acBlkTbl[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
 
-                    CurrWall = tr.GetObject(CurrWallId.ObjectId, OpenMode.ForRead) as Solid3d;
-                    CurrWallClone1 = (Solid3d)CurrWall.Clone();
-                    CurrWallClone2 = (Solid3d)CurrWall.Clone();
-                    acBlkTblRec2.AppendEntity(CurrWallClone1);
-                    acBlkTblRec2.AppendEntity(CurrWallClone2);
-                    tr.AddNewlyCreatedDBObject(CurrWallClone1, true);
-                    tr.AddNewlyCreatedDBObject(CurrWallClone2, true);
+                    windowBoxPos = CreateBox(PI.Origin, PI.XAxis, PI.YAxis, PI.XLength, PI.YLength, MAXWALLTHICKNESS);
+                    windowBoxNeg = CreateBox(PI.Origin, PI.XAxis, PI.YAxis, PI.XLength, PI.YLength, MAXWALLTHICKNESS * -1);
 
-                    windowBoxPos = CreateBoxWithVertexAtPoint(plRect, MAXWALLTHICKNESS);
-                    windowBoxNeg = CreateBoxWithVertexAtPoint(plRect, -MAXWALLTHICKNESS);
-                    // Now we gotta add these 2 bitches to the db and modelspace.
-                    acBlkTblRec2.AppendEntity(windowBoxPos);
-                    acBlkTblRec2.AppendEntity(windowBoxNeg);
+                    acBlkTblRec.AppendEntity(windowBoxPos);
+                    acBlkTblRec.AppendEntity(windowBoxNeg);
                     tr.AddNewlyCreatedDBObject(windowBoxPos, true);
                     tr.AddNewlyCreatedDBObject(windowBoxNeg, true);
+
                     tr.Commit();
                 }
+
+                windowBoxIntersectPosId = SpatialConflictSolid(windowBoxPos.ObjectId, AllWallsSelectedObject.ObjectId);
+                windowBoxIntersectNegId = SpatialConflictSolid(windowBoxNeg.ObjectId, AllWallsSelectedObject.ObjectId);
+
                 using (Transaction tr = db.TransactionManager.StartTransaction())
                 {
-                    windowBoxPos.BooleanOperation(BooleanOperationType.BoolIntersect, CurrWallClone1);
-                    windowBoxNeg.BooleanOperation(BooleanOperationType.BoolIntersect, CurrWallClone2);
+                    windowBoxPos.Erase();
+                    windowBoxNeg.Erase();
                     tr.Commit();
                 }
-                if (windowBoxPos.MassProperties.Volume > 0)
+            
+                if (windowBoxIntersectPosId != ObjectId.Null)
                 {
-                    WindowHole = windowBoxPos;
+                    WindowHoleObjectId = (ObjectId)windowBoxIntersectPosId;
+                    Handedness = 1;
                     bFoundWall = true;
-                    ThisWindowsWallEntityHandle = CurrWall.Handle;
-                    ThisWindowsWall = CurrWall;
-                    using (Transaction tr = db.TransactionManager.StartTransaction())
-                    {
-                        windowBoxNeg.Erase();
-                        tr.Commit();
-                    }
+                    ThisWindowsWallObjectId = AllWallsSelectedObject.ObjectId;
                     break;
-
                 }
-                if (windowBoxNeg.MassProperties.Volume > 0)
+                if (windowBoxIntersectNegId != ObjectId.Null)
                 {
-                    WindowHole = windowBoxNeg;
+                    WindowHoleObjectId = (ObjectId)windowBoxIntersectNegId;
+                    Handedness = -1;
                     bFoundWall = true;
-                    ThisWindowsWallEntityHandle = CurrWall.Handle;
-                    ThisWindowsWall = CurrWall;
-                    using (Transaction tr = db.TransactionManager.StartTransaction())
-                    {
-                        windowBoxPos.Erase();
-                        tr.Commit();
-                    }
+                    ThisWindowsWallObjectId = AllWallsSelectedObject.ObjectId;
                     break;
                 }
 
@@ -807,41 +730,22 @@ namespace ArchitecturalWindows
 
             if (bFoundWall) // Found a valid wall
             {
-                Transaction tr = db.TransactionManager.StartTransaction();
-
-                double WindowHoleVolume = Get3DSolidVolume(WindowHole);
-                WindowHole.Erase();
+                double WindowHoleVolume;
+                using (Transaction tr = db.TransactionManager.StartTransaction())
+                {
+                    WindowHole = tr.GetObject(WindowHoleObjectId, OpenMode.ForWrite) as Solid3d;
+                    WindowHoleVolume = Get3DSolidVolume(WindowHole);
+                    WindowHole.Erase();
+                    Solid3d WallObj = tr.GetObject(ThisWindowsWallObjectId, OpenMode.ForRead) as Solid3d;
+                    ThisWindowsWallEntityHandle = WallObj.Handle;
+                    tr.Commit();
+                };
                 double rectArea = plRect.Area;
                 double wallThickness = WindowHoleVolume / rectArea;
+                if (Handedness == -1) PI.Flip();
+                WindowObject WO = new WindowObject(PI, ThisWindowsWallEntityHandle, wallThickness);
 
-                ObjectId newWindowDictId = DrawWindowFromRect(plRect, ThisWindowsWallEntityHandle, wallThickness, 1);
-                newWindowDict = tr.GetObject(newWindowDictId, OpenMode.ForWrite) as DBDictionary;
-
-                WindowObject NewWindowObj = new WindowObject(tr, newWindowDict);
-
-                Handle windowGlassEntHandle = NewWindowObj.GlassEntHandle;
-                ObjectId windowGlassEntId = db.GetObjectId(false, windowGlassEntHandle, 0);
-                Solid3d windowGlassEnt = tr.GetObject(windowGlassEntId, OpenMode.ForRead) as Solid3d;
-                Solid3d windowGlassEntCopy = (Solid3d)windowGlassEnt.Clone();
-                Solid3d ThisWindowsWallCopy = (Solid3d)ThisWindowsWall.Clone();
-                windowGlassEntCopy.BooleanOperation(BooleanOperationType.BoolIntersect, ThisWindowsWallCopy);
-                if (windowGlassEntCopy.MassProperties.Volume == 0)
-                {
-                    // Delete the window's entities
-                    windowGlassEnt.UpgradeOpen();
-                    windowGlassEnt.Erase();
-                    windowGlassEnt.RecordGraphicsModified(true);
-                    ObjectId FrameEntObjectId = db.GetObjectId(false, NewWindowObj.FrameEntHandle, 0);
-                    Solid3d windowFrameEnt = tr.GetObject(FrameEntObjectId, OpenMode.ForWrite) as Solid3d;
-                    windowFrameEnt.Erase();
-                    windowFrameEnt.RecordGraphicsModified(true);
-                    //
-                    newWindowDictId = DrawWindowFromRect(plRect, ThisWindowsWallEntityHandle, wallThickness, -1);
-                    //SetXRecordText(tr, newWindowDict, "Id", newUniqueID);
-                }
-
-                tr.Commit();
-                return;
+                DrawWindow(WO);
             }
             else
             {
@@ -850,51 +754,31 @@ namespace ArchitecturalWindows
             }
         }
 
-        public static ObjectId DrawWindowFromRect(Polyline rect, Handle wallEntityHandle, double wallThickness, int Handedness)
-        {
-
-            // Get rectangle's corner points in world coordinates
-            //List<Point2d> ecsPts2D = Get2DECSPointsFromWLPline(rect);
-            //Matrix3d entECS = GetECSTransformMatrix(rect);
-            Point3d[] rectPts = Get3DPolylinePoints(rect);
-
-            // Extract relevant points and vectors
-            Point3d Origin = rectPts[0];
-            Point3d xVectPt = rectPts[1];
-            Point3d yVectPt = rectPts[3];
-
-            Vector3d xVect = xVectPt - Origin;
-            Vector3d yVect = yVectPt - Origin;
-
-            double XLength = xVect.Length;
-            double YLength = yVect.Length;
-
-            Vector3d XAxis = xVect.GetNormal();
-            Vector3d YAxis = yVect.GetNormal();
-            //Vector3d ZAxis = XAxis.CrossProduct(YAxis);
-
-            // Call DrawWindow with calculated parameters
-            return DrawWindow(Origin, XAxis, YAxis, XLength, YLength, wallThickness, wallEntityHandle, Handedness);
-        }
-
-
-        //DBDictionary CreateWindowDictionary(Transaction tr, Point3d Origin, Vector3d XAxis, Vector3d YAxis, double XLength, double YLength, int Handedness,
-        //    Handle FrameEnt, Handle GlassEnt, Handle WallEnt, double WallThickness)
+        //public static ObjectId DrawWindowFromRect(Polyline rect, Handle wallEntityHandle, double wallThickness, int Handedness)
         //{
-        //    Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
-        //    //Transaction tr = db.TransactionManager.StartTransaction();
-        //    DBDictionary WindowDict = new DBDictionary();
-        //    tr.Commit();
 
-        //    AddDictionaryData(tr, WindowDict, "XLength", new TypedValue((int)DxfCode.ExtendedDataReal, XLength));
-        //    AddDictionaryData(tr, WindowDict, "YLength", new TypedValue((int)DxfCode.ExtendedDataReal, YLength));
-        //    AddDictionaryData(tr, WindowDict, "Handedness", new TypedValue((int)DxfCode.ExtendedDataInteger16, Handedness));
-        //    AddDictionaryData(tr, WindowDict, "FrameEnt", new TypedValue((int)DxfCode.ExtendedDataHandle, FrameEnt));
-        //    AddDictionaryData(tr, WindowDict, "GlassEnt", new TypedValue((int)DxfCode.ExtendedDataHandle, GlassEnt));
-        //    AddDictionaryData(tr, WindowDict, "WallEnt", new TypedValue((int)DxfCode.ExtendedDataHandle, WallEnt));
-        //    AddDictionaryData(tr, WindowDict, "YLength", new TypedValue((int)DxfCode.ExtendedDataReal, WallThickness));
+        //    // Get rectangle's corner points in world coordinates
+        //    //List<Point2d> ecsPts2D = Get2DECSPointsFromWLPline(rect);
+        //    //Matrix3d entECS = GetECSTransformMatrix(rect);
+        //    Point3d[] rectPts = Get3DPolylinePoints(rect);
 
-        //    return WindowDict;
+        //    // Extract relevant points and vectors
+        //    Point3d Origin = rectPts[0];
+        //    Point3d xVectPt = rectPts[1];
+        //    Point3d yVectPt = rectPts[3];
+
+        //    Vector3d xVect = xVectPt - Origin;
+        //    Vector3d yVect = yVectPt - Origin;
+
+        //    double XLength = xVect.Length;
+        //    double YLength = yVect.Length;
+
+        //    Vector3d XAxis = xVect.GetNormal();
+        //    Vector3d YAxis = yVect.GetNormal();
+        //    //Vector3d ZAxis = XAxis.CrossProduct(YAxis);
+
+        //    // Call DrawWindow with calculated parameters
+        //    return DrawWindow(Origin, XAxis, YAxis, XLength, YLength, wallThickness, wallEntityHandle, Handedness);
         //}
 
 
@@ -1005,7 +889,7 @@ namespace ArchitecturalWindows
             {
                 DBDictionary windowDict = tr.GetObject(windowDictId, OpenMode.ForRead) as DBDictionary;
                 WO = new WindowObject(tr, windowDict);
-                WindowHole = CreateBoxAtCoordinateSystem(WO.XLength, WO.YLength, WO.WallThickness * WO.Handedness, WO.Origin,
+                WindowHole = CreateBoxAtCoordinateSystem(WO.XLength, WO.YLength, WO.WallThickness, WO.Origin,
                     WO.XAxis, WO.YAxis);
                 ObjectId WindowHoleObjId = WindowHole.ObjectId;
                 BlockTable bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
@@ -1036,7 +920,7 @@ namespace ArchitecturalWindows
             using (Transaction tr = db.TransactionManager.StartTransaction())
             {
                 WO = new WindowObject(tr, windowDict);
-                WindowHole = CreateBoxAtCoordinateSystem(WO.XLength, WO.YLength, WO.WallThickness * WO.Handedness, WO.Origin,
+                WindowHole = CreateBoxAtCoordinateSystem(WO.XLength, WO.YLength, WO.WallThickness, WO.Origin,
                     WO.XAxis, WO.YAxis);
                 BlockTable bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
                 BlockTableRecord btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
@@ -1060,114 +944,113 @@ namespace ArchitecturalWindows
 
 
         // Draws the window, 
-        public static ObjectId DrawWindow(Point3d WindowOriginPt, Vector3d XAxis, Vector3d YAxis, double XLength, double YLength, double WallThickness, Handle WallEntHandle, int Handedness)
-        {
-            Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
-            using (Transaction tr = db.TransactionManager.StartTransaction())
-            {
-                BlockTable bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
-                BlockTableRecord btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
-                tr.Commit();
-            }
-            Vector3d ZAxis;
+        //public static ObjectId DrawWindow(Point3d WindowOriginPt, Vector3d XAxis, Vector3d YAxis, double XLength, double YLength, double WallThickness, Handle WallEntHandle, int Handedness)
+        //{
+        //    Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
+        //    using (Transaction tr = db.TransactionManager.StartTransaction())
+        //    {
+        //        BlockTable bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+        //        BlockTableRecord btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+        //        tr.Commit();
+        //    }
+        //    Vector3d ZAxis;
 
-            Point3d WindowOriginPt2;
-            Point3d WindowOriginPt1;
-            Solid3d FrameEnt1;
-            Solid3d FrameEnt2;
-            using (Transaction tr2 = db.TransactionManager.StartTransaction())
-            {
+        //    Point3d WindowOriginPt2;
+        //    Point3d WindowOriginPt1;
+        //    Solid3d FrameEnt1;
+        //    Solid3d FrameEnt2;
+        //    using (Transaction tr2 = db.TransactionManager.StartTransaction())
+        //    {
 
-                BlockTable bt2 = tr2.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
-                BlockTableRecord btr2 = tr2.GetObject(bt2[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+        //        BlockTable bt2 = tr2.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+        //        BlockTableRecord btr2 = tr2.GetObject(bt2[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
 
-                ZAxis = XAxis.CrossProduct(YAxis);
+        //        ZAxis = XAxis.CrossProduct(YAxis);
 
-                //Create Frame entity box1
-                double OrgZOffset1 = (WallThickness - WINDOWFRAMETHICKNESS) / 2 * Handedness;
-                WindowOriginPt1 = new Point3d();
-                WindowOriginPt1 = WindowOriginPt.Add(ZAxis.MultiplyBy(OrgZOffset1));
-                FrameEnt1 = CreateBoxAtCoordinateSystem(XLength, YLength, WINDOWFRAMETHICKNESS * Handedness, WindowOriginPt1, XAxis, YAxis);
-                btr2.AppendEntity(FrameEnt1);
+        //        //Create Frame entity box1
+        //        double OrgZOffset1 = (WallThickness - WINDOWFRAMETHICKNESS) / 2 * Handedness;
+        //        WindowOriginPt1 = new Point3d();
+        //        WindowOriginPt1 = WindowOriginPt.Add(ZAxis.MultiplyBy(OrgZOffset1));
+        //        FrameEnt1 = CreateBoxAtCoordinateSystem(XLength, YLength, WINDOWFRAMETHICKNESS * Handedness, WindowOriginPt1, XAxis, YAxis);
+        //        btr2.AppendEntity(FrameEnt1);
 
-            //    tr2.Commit();
-            //}
+        //    //    tr2.Commit();
+        //    //}
 
-            //using (Transaction tr2 = db.TransactionManager.StartTransaction())
-            //{
-                // Create Frame entity box 2
-                Vector3d FrameOffset = new Vector3d();
-                FrameOffset = XAxis.MultiplyBy(WINDOWFRAMETHICKNESS) + YAxis.MultiplyBy(WINDOWFRAMETHICKNESS);
-                WindowOriginPt2 = WindowOriginPt1.Add(FrameOffset);
-                FrameEnt2 = CreateBoxAtCoordinateSystem(XLength - 2 * WINDOWFRAMETHICKNESS, YLength - 2 * WINDOWFRAMETHICKNESS,
-                    WINDOWFRAMETHICKNESS * Handedness, WindowOriginPt2, XAxis, YAxis);
-                // Append them to modelspace and add them to the database
-                //BlockTable bt2 = tr2.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
-                //BlockTableRecord btr2 = tr2.GetObject(bt2[BlockTableRecord.ModelSpace], OpenMode.ForRead) as BlockTableRecord; btr2.AppendEntity(FrameEnt1);
-                tr2.AddNewlyCreatedDBObject(FrameEnt1, true);
-                btr2.AppendEntity(FrameEnt2);
-                tr2.AddNewlyCreatedDBObject(FrameEnt2, true);
-                // Ccommit the database transaction so then a boolean operation can be performed on them to create the frame object
-                tr2.Commit();
-            }
-            // Thusly -
-            using (Transaction tr2 = db.TransactionManager.StartTransaction())
-            {
-                FrameEnt1 = tr2.GetObject(FrameEnt1.ObjectId, OpenMode.ForWrite) as Solid3d;
-                FrameEnt2 = tr2.GetObject(FrameEnt2.ObjectId, OpenMode.ForWrite) as Solid3d;
+        //    //using (Transaction tr2 = db.TransactionManager.StartTransaction())
+        //    //{
+        //        // Create Frame entity box 2
+        //        Vector3d FrameOffset = new Vector3d();
+        //        FrameOffset = XAxis.MultiplyBy(WINDOWFRAMETHICKNESS) + YAxis.MultiplyBy(WINDOWFRAMETHICKNESS);
+        //        WindowOriginPt2 = WindowOriginPt1.Add(FrameOffset);
+        //        FrameEnt2 = CreateBoxAtCoordinateSystem(XLength - 2 * WINDOWFRAMETHICKNESS, YLength - 2 * WINDOWFRAMETHICKNESS,
+        //            WINDOWFRAMETHICKNESS * Handedness, WindowOriginPt2, XAxis, YAxis);
+        //        // Append them to modelspace and add them to the database
+        //        //BlockTable bt2 = tr2.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+        //        //BlockTableRecord btr2 = tr2.GetObject(bt2[BlockTableRecord.ModelSpace], OpenMode.ForRead) as BlockTableRecord; btr2.AppendEntity(FrameEnt1);
+        //        tr2.AddNewlyCreatedDBObject(FrameEnt1, true);
+        //        btr2.AppendEntity(FrameEnt2);
+        //        tr2.AddNewlyCreatedDBObject(FrameEnt2, true);
+        //        // Ccommit the database transaction so then a boolean operation can be performed on them to create the frame object
+        //        tr2.Commit();
+        //    }
+        //    // Thusly -
+        //    using (Transaction tr2 = db.TransactionManager.StartTransaction())
+        //    {
+        //        FrameEnt1 = tr2.GetObject(FrameEnt1.ObjectId, OpenMode.ForWrite) as Solid3d;
+        //        FrameEnt2 = tr2.GetObject(FrameEnt2.ObjectId, OpenMode.ForWrite) as Solid3d;
 
-                FrameEnt1.BooleanOperation(BooleanOperationType.BoolSubtract, FrameEnt2);
-                //Change layer -
-                FrameEnt1.Layer = WINDOWFRAMELAYER;
-                FrameEnt1.RecordGraphicsModified(true);
-                tr2.Commit();
-            }
+        //        FrameEnt1.BooleanOperation(BooleanOperationType.BoolSubtract, FrameEnt2);
+        //        //Change layer -
+        //        FrameEnt1.Layer = WINDOWFRAMELAYER;
+        //        FrameEnt1.RecordGraphicsModified(true);
+        //        tr2.Commit();
+        //    }
 
-            // Now do the glass:
-            Solid3d GlassEnt;
-            using (Transaction tr2 = db.TransactionManager.StartTransaction())
-            {
-                Point3d WindowOriginPt3 = new Point3d();
-                WindowOriginPt3 = WindowOriginPt2.Add(ZAxis.MultiplyBy((WINDOWFRAMETHICKNESS - GLASSTHICKNESS) / (2 * Handedness)));
-                GlassEnt = CreateBoxAtCoordinateSystem(XLength - 2 * WINDOWFRAMETHICKNESS, YLength - 2 * WINDOWFRAMETHICKNESS,
-                    GLASSTHICKNESS * Handedness, WindowOriginPt3, XAxis, YAxis);
-                GlassEnt.Layer = WINDOWGLASSLAYER;
-                GlassEnt.RecordGraphicsModified(true);
-                BlockTable bt2 = tr2.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
-                BlockTableRecord btr2 = tr2.GetObject(bt2[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
-                btr2.AppendEntity(GlassEnt);
-                tr2.AddNewlyCreatedDBObject(GlassEnt, true);
-                tr2.Commit();
-            }
+        //    // Now do the glass:
+        //    Solid3d GlassEnt;
+        //    using (Transaction tr2 = db.TransactionManager.StartTransaction())
+        //    {
+        //        Point3d WindowOriginPt3 = new Point3d();
+        //        WindowOriginPt3 = WindowOriginPt2.Add(ZAxis.MultiplyBy((WINDOWFRAMETHICKNESS - GLASSTHICKNESS) / (2 * Handedness)));
+        //        GlassEnt = CreateBoxAtCoordinateSystem(XLength - 2 * WINDOWFRAMETHICKNESS, YLength - 2 * WINDOWFRAMETHICKNESS,
+        //            GLASSTHICKNESS * Handedness, WindowOriginPt3, XAxis, YAxis);
+        //        GlassEnt.Layer = WINDOWGLASSLAYER;
+        //        GlassEnt.RecordGraphicsModified(true);
+        //        BlockTable bt2 = tr2.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+        //        BlockTableRecord btr2 = tr2.GetObject(bt2[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+        //        btr2.AppendEntity(GlassEnt);
+        //        tr2.AddNewlyCreatedDBObject(GlassEnt, true);
+        //        tr2.Commit();
+        //    }
 
+        //    // Create dictionary
+        //    DBDictionary WindowDict;
+        //    using (Transaction tr2 = db.TransactionManager.StartTransaction())
+        //    {
+        //        WindowDict = new DBDictionary();
+        //        DBDictionary WindowDictionaryDictionary = tr2.GetObject(WINDOWDICTIONARYDICTIONARYID, OpenMode.ForWrite) as DBDictionary;
+        //        string newUniqueId = Guid.NewGuid().ToString("N").Substring(0, 8);
+        //        WindowDictionaryDictionary.SetAt(newUniqueId, WindowDict);
+        //        tr2.AddNewlyCreatedDBObject(WindowDict, true);
+        //        SetXRecordPoint3d(tr2, WindowDict, "Origin", WindowOriginPt);
+        //        SetXRecordText(tr2, WindowDict, "Id", newUniqueId);
+        //        SetXRecordReal(tr2, WindowDict, "XLength", XLength);
+        //        SetXRecordReal(tr2, WindowDict, "YLength", YLength);
+        //        SetXRecordInt(tr2, WindowDict, "Handedness", Handedness);
+        //        SetXRecordHandle(tr2, WindowDict, "FrameEntHandle", FrameEnt1.Handle);
+        //        SetXRecordHandle(tr2, WindowDict, "GlassEntHandle", GlassEnt.Handle);
+        //        SetXRecordHandle(tr2, WindowDict, "WallEntHandle", WallEntHandle);
+        //        SetXRecordReal(tr2, WindowDict, "WallThickness", WallThickness);
+        //        SetXRecordVector3d(tr2, WindowDict, "XAxis", XAxis);
+        //        SetXRecordVector3d(tr2, WindowDict, "YAxis", YAxis);
+        //        tr2.Commit();
+        //    }
 
-            // Create dictionary
-            DBDictionary WindowDict;
-            using (Transaction tr2 = db.TransactionManager.StartTransaction())
-            {
-                WindowDict = new DBDictionary();
-                DBDictionary WindowDictionaryDictionary = tr2.GetObject(WINDOWDICTIONARYDICTIONARYID, OpenMode.ForWrite) as DBDictionary;
-                string newUniqueId = Guid.NewGuid().ToString("N").Substring(0, 8);
-                WindowDictionaryDictionary.SetAt(newUniqueId, WindowDict);
-                tr2.AddNewlyCreatedDBObject(WindowDict, true);
-                SetXRecordPoint3d(tr2, WindowDict, "Origin", WindowOriginPt);
-                SetXRecordText(tr2, WindowDict, "Id", newUniqueId);
-                SetXRecordReal(tr2, WindowDict, "XLength", XLength);
-                SetXRecordReal(tr2, WindowDict, "YLength", YLength);
-                SetXRecordInt(tr2, WindowDict, "Handedness", Handedness);
-                SetXRecordHandle(tr2, WindowDict, "FrameEntHandle", FrameEnt1.Handle);
-                SetXRecordHandle(tr2, WindowDict, "GlassEntHandle", GlassEnt.Handle);
-                SetXRecordHandle(tr2, WindowDict, "WallEntHandle", WallEntHandle);
-                SetXRecordReal(tr2, WindowDict, "WallThickness", WallThickness);
-                SetXRecordVector3d(tr2, WindowDict, "XAxis", XAxis);
-                SetXRecordVector3d(tr2, WindowDict, "YAxis", YAxis);
-                tr2.Commit();
-            }
+        //    MakeWindowHole(WindowDict);
 
-            MakeWindowHole(WindowDict);
-
-            return WindowDict.ObjectId;
-        }
+        //    return WindowDict.ObjectId;
+        //}
 
         public static ObjectId AdjustWindow(ObjectId windowDictId, Point3d pt)
         {
@@ -1182,11 +1065,6 @@ namespace ArchitecturalWindows
                 tr.Commit();
 
             }
-
-            //PromptPointOptions PPO = new PromptPointOptions("Enter new point for a window corner:");
-            //PromptPointResult PPR = ed.GetPoint(PPO);
-            //if (PPR.Status == PromptStatus.Cancel) return;
-            //Point3d pt = PPR.Value;
 
             // Find the closest corner to pt
             Point3d[] windowCornerPoints = WO.GetWindowPoints();
@@ -1234,7 +1112,7 @@ namespace ArchitecturalWindows
 
         public static ObjectId DrawWindow(WindowObject WO)
         {
-            return DrawWindow(WO.Origin, WO.XAxis, WO.YAxis, WO.XLength, WO.YLength, WO.WallThickness, WO.WallEntHandle, WO.Handedness);
+            return DrawWindow2(WO.Origin, WO.XAxis, WO.YAxis, WO.XLength, WO.YLength, WO.WallThickness, WO.WallEntHandle);
         }
 
 
@@ -1305,6 +1183,128 @@ namespace ArchitecturalWindows
             }
         }
 
+        public static ObjectId DrawWindow2(Point3d WindowOriginPt, Vector3d XAxis, Vector3d YAxis, double XLength, double YLength, double WallThickness, Handle WallEntHandle)
+        {
+            Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
+            using (Transaction tr = db.TransactionManager.StartTransaction())
+            {
+                BlockTable bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+                BlockTableRecord btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+                tr.Commit();
+            }
+            Vector3d ZAxis;
+
+            Point3d WindowOriginPt2;
+            Point3d WindowOriginPt1;
+            Solid3d FrameEnt1;
+            Solid3d FrameEnt2;
+            using (Transaction tr2 = db.TransactionManager.StartTransaction())
+            {
+
+                BlockTable bt2 = tr2.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+                BlockTableRecord btr2 = tr2.GetObject(bt2[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+
+                ZAxis = XAxis.CrossProduct(YAxis);
+
+                //Create Frame entity box1
+                double OrgZOffset1 = (WallThickness - WINDOWFRAMETHICKNESS) / 2;
+                WindowOriginPt1 = new Point3d();
+                WindowOriginPt1 = WindowOriginPt.Add(ZAxis.MultiplyBy(OrgZOffset1));
+                FrameEnt1 = CreateBoxAtCoordinateSystem(XLength, YLength, WINDOWFRAMETHICKNESS, WindowOriginPt1, XAxis, YAxis);
+                btr2.AppendEntity(FrameEnt1);
+
+                //    tr2.Commit();
+                //}
+
+                //using (Transaction tr2 = db.TransactionManager.StartTransaction())
+                //{
+                // Create Frame entity box 2
+                Vector3d FrameOffset = new Vector3d();
+                FrameOffset = XAxis.MultiplyBy(WINDOWFRAMETHICKNESS) + YAxis.MultiplyBy(WINDOWFRAMETHICKNESS);
+                WindowOriginPt2 = WindowOriginPt1.Add(FrameOffset);
+                FrameEnt2 = CreateBoxAtCoordinateSystem(XLength - 2 * WINDOWFRAMETHICKNESS, YLength - 2 * WINDOWFRAMETHICKNESS,
+                    WINDOWFRAMETHICKNESS, WindowOriginPt2, XAxis, YAxis);
+                // Append them to modelspace and add them to the database
+                //BlockTable bt2 = tr2.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+                //BlockTableRecord btr2 = tr2.GetObject(bt2[BlockTableRecord.ModelSpace], OpenMode.ForRead) as BlockTableRecord; btr2.AppendEntity(FrameEnt1);
+                tr2.AddNewlyCreatedDBObject(FrameEnt1, true);
+                btr2.AppendEntity(FrameEnt2);
+                tr2.AddNewlyCreatedDBObject(FrameEnt2, true);
+                // Ccommit the database transaction so then a boolean operation can be performed on them to create the frame object
+                tr2.Commit();
+            }
+            // Thusly -
+            using (Transaction tr2 = db.TransactionManager.StartTransaction())
+            {
+                FrameEnt1 = tr2.GetObject(FrameEnt1.ObjectId, OpenMode.ForWrite) as Solid3d;
+                FrameEnt2 = tr2.GetObject(FrameEnt2.ObjectId, OpenMode.ForWrite) as Solid3d;
+
+                FrameEnt1.BooleanOperation(BooleanOperationType.BoolSubtract, FrameEnt2);
+                //Change layer -
+                FrameEnt1.Layer = WINDOWFRAMELAYER;
+                FrameEnt1.RecordGraphicsModified(true);
+                tr2.Commit();
+            }
+
+            // Now do the glass:
+            Solid3d GlassEnt;
+            using (Transaction tr2 = db.TransactionManager.StartTransaction())
+            {
+                Point3d WindowOriginPt3 = new Point3d();
+                WindowOriginPt3 = WindowOriginPt2.Add(ZAxis.MultiplyBy((WINDOWFRAMETHICKNESS - GLASSTHICKNESS) / 2));
+                GlassEnt = CreateBoxAtCoordinateSystem(XLength - 2 * WINDOWFRAMETHICKNESS, YLength - 2 * WINDOWFRAMETHICKNESS,
+                    GLASSTHICKNESS, WindowOriginPt3, XAxis, YAxis);
+                GlassEnt.Layer = WINDOWGLASSLAYER;
+                GlassEnt.RecordGraphicsModified(true);
+                BlockTable bt2 = tr2.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+                BlockTableRecord btr2 = tr2.GetObject(bt2[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+                btr2.AppendEntity(GlassEnt);
+                tr2.AddNewlyCreatedDBObject(GlassEnt, true);
+                tr2.Commit();
+            }
+
+
+            // Create dictionary
+            DBDictionary WindowDict;
+            using (Transaction tr2 = db.TransactionManager.StartTransaction())
+            {
+                WindowDict = new DBDictionary();
+                DBDictionary WindowDictionaryDictionary = tr2.GetObject(WINDOWDICTIONARYDICTIONARYID, OpenMode.ForWrite) as DBDictionary;
+                string newUniqueId = Guid.NewGuid().ToString("N").Substring(0, 8);
+                WindowDictionaryDictionary.SetAt(newUniqueId, WindowDict);
+                tr2.AddNewlyCreatedDBObject(WindowDict, true);
+                SetXRecordPoint3d(tr2, WindowDict, "Origin", WindowOriginPt);
+                SetXRecordText(tr2, WindowDict, "Id", newUniqueId);
+                SetXRecordReal(tr2, WindowDict, "XLength", XLength);
+                SetXRecordReal(tr2, WindowDict, "YLength", YLength);
+                SetXRecordInt(tr2, WindowDict, "Handedness", 1);
+                SetXRecordHandle(tr2, WindowDict, "FrameEntHandle", FrameEnt1.Handle);
+                SetXRecordHandle(tr2, WindowDict, "GlassEntHandle", GlassEnt.Handle);
+                SetXRecordHandle(tr2, WindowDict, "WallEntHandle", WallEntHandle);
+                SetXRecordReal(tr2, WindowDict, "WallThickness", WallThickness);
+                SetXRecordVector3d(tr2, WindowDict, "XAxis", XAxis);
+                SetXRecordVector3d(tr2, WindowDict, "YAxis", YAxis);
+                tr2.Commit();
+            }
+
+            MakeWindowHole(WindowDict);
+
+            return WindowDict.ObjectId;
+        }
+
+        //public void Test ()
+        //{
+        //    Database db = Autodesk.AutoCAD.ApplicationServices.Core.Application.DocumentManager.MdiActiveDocument.Database;
+        //    using (Transaction tr = db.TransactionManager.StartTransaction())
+        //    {
+        //        BlockTable bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+        //        BlockTableRecord btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+        //        .
+
+        //    }
+        //}
+
+
         //[CommandMethod("SetNewUCS")]
         //public void SetNewUCS()
         //{
@@ -1374,8 +1374,6 @@ namespace ArchitecturalWindows
         //    }
         //}
     }
+
+
 }
-
-
- 
-

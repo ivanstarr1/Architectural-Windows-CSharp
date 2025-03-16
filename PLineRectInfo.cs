@@ -9,7 +9,7 @@ using static ArchitecturalWindows.Globals;
 
 namespace ArchitecturalWindows
 {
-    class PLineRectInfo
+    public class PLineRectInfo
 
     {
         public Point3d Origin;
@@ -22,7 +22,11 @@ namespace ArchitecturalWindows
         public PLineRectInfo(Polyline rect)
         {
             Points = Get3DPolylinePoints(rect);
+            CalculateMemberVariables();
+        }
 
+        public void CalculateMemberVariables()
+        { 
             // Extract relevant points and vectors
             Origin = Points[0];
             Point3d xVectPt = Points[1];
@@ -36,6 +40,14 @@ namespace ArchitecturalWindows
 
             XAxis = xVect.GetNormal();
             YAxis = yVect.GetNormal();
+        }
+
+        public void Flip()
+        {
+            Point3d tmp = Points[1];
+            Points[1] = Points[3];
+            Points[3] = tmp;
+            CalculateMemberVariables();
         }
     }
 }
