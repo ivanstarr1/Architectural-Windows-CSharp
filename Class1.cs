@@ -239,92 +239,83 @@ namespace ArchitecturalWindows
 
             ToggleSnapsOn();
 
-            PromptPointOptions ppo = new PromptPointOptions("\nFirst corner of window or pick Rectangle [Rectangle] <Rectangle>: ");
-            ppo.Keywords.Add("Rectangle");
-            ppo.AllowNone = true;
-            PromptPointResult ppr = ed.GetPoint(ppo);
+            PromptEntityOptions peo = new PromptEntityOptions("\nPick a polyline rectangle: ");
+            peo.SetRejectMessage("\nEntity is not a polyline.");
+            peo.AddAllowedClass(typeof(Polyline), true);
 
-            ToggleSnapsOff();
-
-            if (ppr.Status == PromptStatus.Keyword || ppr.Status == PromptStatus.None)
+            PromptEntityResult per = ed.GetEntity(peo);
+            if (per.Status == PromptStatus.OK)
             {
-                PromptEntityOptions peo = new PromptEntityOptions("\nPick a polyline rectangle: ");
-                peo.SetRejectMessage("\nEntity is not a polyline.");
-                peo.AddAllowedClass(typeof(Polyline), true);
-
-                PromptEntityResult per = ed.GetEntity(peo);
-                if (per.Status == PromptStatus.OK)
+                using (Transaction tr = db.TransactionManager.StartTransaction())
                 {
-                    using (Transaction tr = db.TransactionManager.StartTransaction())
+                    Polyline plRect = tr.GetObject(per.ObjectId, OpenMode.ForRead) as Polyline;
+                    PlineTestEntityObjectId = plRect.ObjectId;
+
+                    if (plRect != null)
                     {
-                        Polyline plRect = tr.GetObject(per.ObjectId, OpenMode.ForRead) as Polyline;
-                        PlineTestEntityObjectId = plRect.ObjectId;
+                        CreateNewWindowFromRectInWall(plRect);
+                        ed.UpdateScreen();
+                        PromptKeywordOptions pko = new PromptKeywordOptions("\nDelete rectangle? [Yes/No] <Yes>: ");
+                        pko.Keywords.Add("Yes");
+                        pko.Keywords.Add("No");
+                        pko.AllowNone = true;
 
-                        if (plRect != null)
+                        PromptResult pr = ed.GetKeywords(pko);
+                        if (pr.Status == PromptStatus.OK || pr.Status == PromptStatus.None)
                         {
-                            CreateNewWindowFromRectInWall(plRect);
-                            ed.UpdateScreen();
-                            PromptKeywordOptions pko = new PromptKeywordOptions("\nDelete rectangle? [Yes/No] <Yes>: ");
-                            pko.Keywords.Add("Yes");
-                            pko.Keywords.Add("No");
-                            pko.AllowNone = true;
-
-                            PromptResult pr = ed.GetKeywords(pko);
-                            if (pr.Status == PromptStatus.OK || pr.Status == PromptStatus.None)
+                            if (pr.StringResult == "Yes" || pr.Status == PromptStatus.None)
                             {
-                                if (pr.StringResult == "Yes" || pr.Status == PromptStatus.None)
-                                {
-                                    plRect.UpgradeOpen();
-                                    plRect.Erase();
-                                }
+                                plRect.UpgradeOpen();
+                                plRect.Erase();
                             }
                         }
-                        else
-                        {
-                            ed.WriteMessage("\nEntity is not a polyline.");
-                        }
-                        tr.Commit();
                     }
-                }
-                else
-                {
-                    ed.WriteMessage("\nNo entity selected.");
+                    else
+                    {
+                        ed.WriteMessage("\nEntity is not a polyline.");
+                    }
+                    tr.Commit();
                 }
             }
-            else if (ppr.Status == PromptStatus.OK)
+            else
             {
-                using (Transaction tr = db.TransactionManager.StartTransaction())
-                {
-                    BlockTable bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
-                    BlockTableRecord btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
-                    tr.Commit();
-                }
-
-                ed.Document.SendStringToExecute("_RECTANGLE PAUSE PAUSE ", true, false, false);
-
-                ObjectId lastEntityId = GetLastCreatedModelSpaceEntity();
-                Polyline lastEntity;
-                using (Transaction tr = db.TransactionManager.StartTransaction())
-                {
-                    lastEntity = tr.GetObject(lastEntityId, OpenMode.ForRead) as Polyline;
-                    tr.Commit();
-                }
-
-                CreateNewWindowFromRectInWall(lastEntity);
-
-                using (Transaction tr = db.TransactionManager.StartTransaction())
-                {
-                    lastEntity.Erase();
-
-                    tr.Commit();
-                }
-               
-                
-
+                ed.WriteMessage("\nNo entity selected.");
             }
-
         }
-        
+        //else if (ppr.Status == PromptStatus.OK)
+        //{
+        //    using (Transaction tr = db.TransactionManager.StartTransaction())
+        //    {
+        //        BlockTable bt = tr.GetObject(db.BlockTableId, OpenMode.ForRead) as BlockTable;
+        //        BlockTableRecord btr = tr.GetObject(bt[BlockTableRecord.ModelSpace], OpenMode.ForWrite) as BlockTableRecord;
+        //        tr.Commit();
+        //    }
+
+        //    ed.Document.SendStringToExecute("_RECTANGLE PAUSE PAUSE ", true, false, false);
+
+        //    ObjectId lastEntityId = GetLastCreatedModelSpaceEntity();
+        //    Polyline lastEntity;
+        //    using (Transaction tr = db.TransactionManager.StartTransaction())
+        //    {
+        //        lastEntity = tr.GetObject(lastEntityId, OpenMode.ForRead) as Polyline;
+        //        tr.Commit();
+        //    }
+
+        //    CreateNewWindowFromRectInWall(lastEntity);
+
+        //    using (Transaction tr = db.TransactionManager.StartTransaction())
+        //    {
+        //        lastEntity.Erase();
+
+        //        tr.Commit();
+        //    }
+
+
+
+    
+
+
+
     
 
         private void ModifyWindow(Editor ed)

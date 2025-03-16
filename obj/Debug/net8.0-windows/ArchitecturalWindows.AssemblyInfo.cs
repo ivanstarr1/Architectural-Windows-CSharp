@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ArchitecturalWindows")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+32e28de1ab2fa1fe0316321bc3d992755c3160b1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f32c13c6d94cb2a81df83b51cb5a13c906b3b370")]
 [assembly: System.Reflection.AssemblyProductAttribute("ArchitecturalWindows")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ArchitecturalWindows")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
